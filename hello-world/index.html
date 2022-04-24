@@ -24,7 +24,7 @@
 <meta property="og:description" content="HexoHexo是一款快速、简洁且高效的博客框架，有如下特点：  超快速度：Node.js 所带来的超快生成速度，让上百个页面在几秒内瞬间完成渲染。 支持 Markdown：Hexo 支持 GitHub Flavored Markdown 的所有功能，甚至可以整合 Octopress 的大多数插件。 一键部署：只需一条指令即可部署到 GitHub Pages, Heroku 或其他平台。 插件和可">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-04-06T03:04:43.003Z">
-<meta property="article:modified_time" content="2022-04-06T07:49:33.988Z">
+<meta property="article:modified_time" content="2022-04-24T04:23:54.578Z">
 <meta property="article:author" content="Seon Fang">
 <meta property="article:tag" content="博客">
 <meta property="article:tag" content="GitHub">
@@ -198,7 +198,7 @@
   
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      708 字
+      966 字
     </span>
   
 
@@ -207,7 +207,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      6 分钟
+      9 分钟
     </span>
   
 
@@ -240,7 +240,7 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：2022年4月6日 下午
+                  本文最后更新于：2022年4月24日 中午
                 
               </p>
             
@@ -274,6 +274,14 @@
 <li><p>执行部署命令<code>hexo d</code>，将新发布的文章部署到<code>github.io</code>上</p>
 </li>
 </ol>
+<h4 id="常见错误"><a href="#常见错误" class="headerlink" title="常见错误"></a>常见错误</h4><p><strong>格式错误</strong></p>
+<p>1.在使用<code>$</code>符号时，一定要用反引号括起来，不然<code>$</code>被解析成HTML文件时格式会出错。</p>
+<p>比如”$1”应写成<code>$1</code></p>
+<p>2.对命令选项加粗时，要在<code>-</code>字符前面加上转义<code>\</code>，不然解析HTML格式异常。</p>
+<p>比如:<code>**-p选项**</code>应写成``**-p选项`</p>
+<p>类似的还有<code>**&gt;&gt;符号**</code>这中<code>**</code>与<code>&gt;</code>连在一起时，中间也要加上转义：<code>**\&gt;&gt;符号**</code>。</p>
+<p>3.<code>$</code>想要加粗显示，可以用如下方式，注意后面两个加粗符号<code>**</code>要与之后的汉字或字母间隔一个空格位置：</p>
+<p><code>**$\*** 和**\$@**变量可以用来轻松访问所有的参数</code></p>
 
             </div>
             <hr>
