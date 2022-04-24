@@ -240,6 +240,12 @@
             <!-- SEO header -->
             <h1 style="display: none">基础算法</h1>
             
+              <p class="note note-info">
+                
+                  本文最后更新于：2022年4月11日 晚上
+                
+              </p>
+            
             <div class="markdown-body">
               <h3 id="排序"><a href="#排序" class="headerlink" title="排序"></a>排序</h3><h4 id="1-Java数组排序"><a href="#1-Java数组排序" class="headerlink" title="1.Java数组排序"></a>1.Java数组排序</h4><figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java">Integer[] q = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Integer</span>[<span class="hljs-number">10</span>];<br><span class="hljs-comment">// 从0到最后一位排序，默认升序</span><br>Arrays.sort(q);		<br><span class="hljs-comment">// 指定范围排序[1,5)</span><br>Arrays.sort(q, <span class="hljs-number">1</span>, <span class="hljs-number">5</span>);<br><span class="hljs-comment">// 从1到n排序，使用lambda表达式自定义排序规则：从大到小</span><br><span class="hljs-comment">// 使用Integer.compare()方法时，数组必须是Integer[]</span><br>Arrays.sort(q, <span class="hljs-number">1</span>, n + <span class="hljs-number">1</span>, (a, b) -&gt; Integer.compare(b, a));<br><span class="hljs-comment">// 使用Collections.reverseOrder()实现降序</span><br>Arrays.sort(q, Collections.reverseOrder());<br></code></pre></div></td></tr></table></figure>
 
