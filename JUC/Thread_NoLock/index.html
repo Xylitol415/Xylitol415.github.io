@@ -1,0 +1,675 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Seon Fang">
+  <meta name="keywords" content="计算机 编程 JAVA C++">
+  
+    <meta name="description" content="本文主要介绍Java并发编程共享模型之无锁，包含CAS加volatile实现无锁并发，原子整数，原子引用，原子数组，字段更新器，原子累加器，Unsafe类等。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java并发编程——共享模型之无锁">
+<meta property="og:url" content="http://example.com/JUC/Thread_NoLock/index.html">
+<meta property="og:site_name" content="Seon&#39;s Blog">
+<meta property="og:description" content="本文主要介绍Java并发编程共享模型之无锁，包含CAS加volatile实现无锁并发，原子整数，原子引用，原子数组，字段更新器，原子累加器，Unsafe类等。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Xylitol415/Hexo_Blog_Pictures/img/JUC_Header_IMG.png">
+<meta property="article:published_time" content="2022-05-11T09:18:26.000Z">
+<meta property="article:modified_time" content="2022-05-11T09:22:05.634Z">
+<meta property="article:author" content="Seon Fang">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="CAS">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Xylitol415/Hexo_Blog_Pictures/img/JUC_Header_IMG.png">
+  
+  
+  <title>Java并发编程——共享模型之无锁 - Seon&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/lioshi.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Seon&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('https://cdn.jsdelivr.net/gh/Xylitol415/Hexo_Blog_Pictures/img/JUC_Header_IMG.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Java并发编程——共享模型之无锁">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-05-11 17:18" pubdate>
+        2022年5月11日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      16k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      134 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Java并发编程——共享模型之无锁</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：2022年5月11日 下午
+                
+              </p>
+            
+            <div class="markdown-body">
+              <h2 id="共享模型之无锁"><a href="#共享模型之无锁" class="headerlink" title="共享模型之无锁"></a>共享模型之无锁</h2><h3 id="1-问题提出"><a href="#1-问题提出" class="headerlink" title="1. 问题提出"></a>1. 问题提出</h3><p>有如下需求，保证 <code>account.withdraw</code> 取款方法的线程安全</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">interface</span> <span class="hljs-title class_">Account</span> &#123;<br>    <span class="hljs-comment">// 获取余额</span><br>    Integer <span class="hljs-title function_">getBalance</span><span class="hljs-params">()</span>;<br><br>    <span class="hljs-comment">// 取款</span><br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">withdraw</span><span class="hljs-params">(Integer amount)</span>;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 方法内会启动 1000 个线程，每个线程做 -10 元 的操作</span><br><span class="hljs-comment">     * 如果初始余额为 10000 那么正确的结果应当是 0</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">demo</span><span class="hljs-params">(Account account)</span> &#123;<br>        List&lt;Thread&gt; ts = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">1000</span>; i++) &#123;<br>            ts.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; &#123;<br>                account.withdraw(<span class="hljs-number">10</span>);<br>            &#125;));<br>        &#125;<br>        <span class="hljs-type">long</span> <span class="hljs-variable">start</span> <span class="hljs-operator">=</span> System.nanoTime();<br>        ts.forEach(Thread::start);<br>        ts.forEach(t -&gt; &#123;<br>            <span class="hljs-keyword">try</span> &#123;<br>                t.join();<br>            &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>                e.printStackTrace();<br>            &#125;<br>        &#125;);<br>        <span class="hljs-type">long</span> <span class="hljs-variable">end</span> <span class="hljs-operator">=</span> System.nanoTime();<br>        System.out.println(account.getBalance()<br>                + <span class="hljs-string">&quot; cost: &quot;</span> + (end-start)/<span class="hljs-number">1000_000</span> + <span class="hljs-string">&quot; ms&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>原有实现并不是线程安全的</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">AccountUnsafe</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Account</span> &#123;<br><br>    <span class="hljs-keyword">private</span> Integer balance;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">AccountUnsafe</span><span class="hljs-params">(Integer balance)</span> &#123;<br>        <span class="hljs-built_in">this</span>.balance = balance;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> Integer <span class="hljs-title function_">getBalance</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">synchronized</span> (<span class="hljs-built_in">this</span>) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>.balance;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">withdraw</span><span class="hljs-params">(Integer amount)</span> &#123;<br>        <span class="hljs-keyword">synchronized</span> (<span class="hljs-built_in">this</span>) &#123;<br>            <span class="hljs-built_in">this</span>.balance -= amount;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>执行测试代码</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>	Account.demo(<span class="hljs-keyword">new</span> <span class="hljs-title class_">AccountUnsafe</span>(<span class="hljs-number">10000</span>));<br>&#125;<br><br><span class="hljs-comment">// 某次的执行结果</span><br><span class="hljs-number">330</span> cost: <span class="hljs-number">306</span> ms<br></code></pre></div></td></tr></table></figure>
+
+<p><strong>为什么不安全</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">withdraw</span><span class="hljs-params">(Integer amount)</span> &#123;<br>	balance -= amount;<br>&#125;<br><br><span class="hljs-comment">// 以上方法对应的字节码</span><br>ALOAD <span class="hljs-number">0</span> 														<span class="hljs-comment">// &lt;- this</span><br>ALOAD <span class="hljs-number">0</span><br>GETFIELD cn/itcast/AccountUnsafe.balance : Ljava/lang/Integer; 	<span class="hljs-comment">// &lt;- this.balance</span><br>INVOKEVIRTUAL java/lang/Integer.intValue ()I 					<span class="hljs-comment">// 拆箱</span><br>ALOAD <span class="hljs-number">1</span>								 							<span class="hljs-comment">// &lt;- amount</span><br>INVOKEVIRTUAL java/lang/Integer.intValue ()I 					<span class="hljs-comment">// 拆箱</span><br>ISUB <span class="hljs-comment">// 减法</span><br>INVOKESTATIC java/lang/Integer.valueOf (I)Ljava/lang/Integer; 	<span class="hljs-comment">// 结果装箱</span><br>PUTFIELD cn/itcast/AccountUnsafe.balance : Ljava/lang/Integer; 	<span class="hljs-comment">// -&gt; this.balance</span><br></code></pre></div></td></tr></table></figure>
+
+<p>多线程执行流程</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java">ALOAD <span class="hljs-number">0</span> 									<span class="hljs-comment">// thread-0 &lt;- this</span><br>ALOAD <span class="hljs-number">0</span><br>GETFIELD cn/itcast/AccountUnsafe.balance 	<span class="hljs-comment">// thread-0 &lt;- this.balance</span><br>INVOKEVIRTUAL java/lang/Integer.intValue 	<span class="hljs-comment">// thread-0 拆箱</span><br>ALOAD <span class="hljs-number">1</span> 									<span class="hljs-comment">// thread-0 &lt;- amount</span><br>INVOKEVIRTUAL java/lang/Integer.intValue 	<span class="hljs-comment">// thread-0 拆箱</span><br>ISUB 										<span class="hljs-comment">// thread-0 减法</span><br>INVOKESTATIC java/lang/Integer.valueOf 		<span class="hljs-comment">// thread-0 结果装箱</span><br>PUTFIELD cn/itcast/AccountUnsafe.balance 	<span class="hljs-comment">// thread-0 -&gt; this.balance</span><br>ALOAD <span class="hljs-number">0</span> 									<span class="hljs-comment">// thread-1 &lt;- this</span><br>ALOAD <span class="hljs-number">0</span><br>GETFIELD cn/itcast/AccountUnsafe.balance 	<span class="hljs-comment">// thread-1 &lt;- this.balance</span><br>INVOKEVIRTUAL java/lang/Integer.intValue 	<span class="hljs-comment">// thread-1 拆箱</span><br>ALOAD <span class="hljs-number">1</span> 									<span class="hljs-comment">// thread-1 &lt;- amount</span><br>INVOKEVIRTUAL java/lang/Integer.intValue 	<span class="hljs-comment">// thread-1 拆箱</span><br>ISUB 										<span class="hljs-comment">// thread-1 减法</span><br>INVOKESTATIC java/lang/Integer.valueOf 		<span class="hljs-comment">// thread-1 结果装箱</span><br>PUTFIELD cn/itcast/AccountUnsafe.balance 	<span class="hljs-comment">// thread-1 -&gt; this.balance</span><br></code></pre></div></td></tr></table></figure>
+
+<ul>
+<li>单核的指令交错</li>
+<li>多核的指令交错</li>
+</ul>
+<p><strong>解决思路-锁</strong></p>
+<p>首先想到的是给 Account 对象加锁</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">AccountUnsafe</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Account</span> &#123;<br>	<span class="hljs-keyword">private</span> Integer balance;<br>	<span class="hljs-keyword">public</span> <span class="hljs-title function_">AccountUnsafe</span><span class="hljs-params">(Integer balance)</span> &#123;<br>		<span class="hljs-built_in">this</span>.balance = balance;<br>	&#125;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> Integer <span class="hljs-title function_">getBalance</span><span class="hljs-params">()</span> &#123;<br>    	<span class="hljs-keyword">return</span> balance;<br>    &#125;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">withdraw</span><span class="hljs-params">(Integer amount)</span> &#123;<br>    	balance -= amount;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>结果为</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">0 cost: 399 ms<br></code></pre></div></td></tr></table></figure>
+
+<p><strong>解决思路-无锁</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">AccountUnsafe</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Account</span> &#123;<br>    AtomicInteger atomicInteger;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">AccountUnsafe</span><span class="hljs-params">(Integer balance)</span> &#123;<br>        <span class="hljs-built_in">this</span>.atomicInteger = <span class="hljs-keyword">new</span> <span class="hljs-title class_">AtomicInteger</span>(balance);<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> Integer <span class="hljs-title function_">getBalance</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> atomicInteger.get();<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">withdraw</span><span class="hljs-params">(Integer amount)</span> &#123;<br>        <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) &#123;<br>            <span class="hljs-type">Integer</span> <span class="hljs-variable">pre</span> <span class="hljs-operator">=</span> getBalance();<br>            <span class="hljs-type">int</span> <span class="hljs-variable">next</span> <span class="hljs-operator">=</span> pre - amount;<br>            <span class="hljs-keyword">if</span> (atomicInteger.compareAndSet(pre, next)) &#123;<br>                <span class="hljs-keyword">break</span>;<br>            &#125;<br>        &#125;<br>        <span class="hljs-comment">// 可以简化为下面的方法</span><br>		<span class="hljs-comment">// balance.addAndGet(-1 * amount);</span><br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>执行测试代码并得到正确结果</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>	Account.demo(<span class="hljs-keyword">new</span> <span class="hljs-title class_">AccountSafe</span>(<span class="hljs-number">10000</span>));<br>&#125;<br><br><span class="hljs-comment">// 某次的执行结果</span><br><span class="hljs-number">0</span> cost: <span class="hljs-number">302</span> ms<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="2-CAS-与-volatile"><a href="#2-CAS-与-volatile" class="headerlink" title="2. CAS 与 volatile"></a>2. CAS 与 volatile</h3><h4 id="2-1-CAS"><a href="#2-1-CAS" class="headerlink" title="2.1 CAS"></a>2.1 CAS</h4><p>前面看到的<code> AtomicInteger</code> 的解决方法，内部并没有用锁来保护共享变量的线程安全。那么它是如何实现的呢？</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">withdraw</span><span class="hljs-params">(Integer amount)</span> &#123;<br>    <span class="hljs-keyword">while</span>(<span class="hljs-literal">true</span>) &#123;<br>        <span class="hljs-comment">// 需要不断尝试，直到成功为止</span><br>        <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) &#123;<br>            <span class="hljs-comment">// 比如拿到了旧值 1000</span><br>            <span class="hljs-type">int</span> <span class="hljs-variable">prev</span> <span class="hljs-operator">=</span> balance.get();<br>            <span class="hljs-comment">// 在这个基础上 1000-10 = 990</span><br>            <span class="hljs-type">int</span> <span class="hljs-variable">next</span> <span class="hljs-operator">=</span> prev - amount;<br>            <span class="hljs-comment">/*</span><br><span class="hljs-comment">            compareAndSet 正是做这个检查，在 set 前，先比较 prev 与当前值</span><br><span class="hljs-comment">            - 不一致了，next 作废，返回 false 表示失败</span><br><span class="hljs-comment">            比如，别的线程已经做了减法，当前值已经被减成了 990</span><br><span class="hljs-comment">            那么本线程的这次 990 就作废了，进入 while 下次循环重试</span><br><span class="hljs-comment">            - 一致，以 next 设置为新值，返回 true 表示成功</span><br><span class="hljs-comment">            */</span><br>            <span class="hljs-keyword">if</span> (balance.compareAndSet(prev, next)) &#123;<br>    			<span class="hljs-keyword">break</span>;<br>   			&#125;<br>    	&#125;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>其中的关键是 compareAndSet，它的简称就是 CAS （也有 Compare And Swap 的说法），它必须是原子操作。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Xylitol415/Hexo_Blog_Pictures/img/NoLock_1.png" srcset="/img/loading.gif" lazyload alt="CAS解决取款问题"></p>
+<blockquote>
+<p><strong>注意</strong><br>其实 CAS 的底层是 lock cmpxchg 指令（X86 架构），在单核 CPU 和多核 CPU 下都能够保证【比较-交换】的原子性。</p>
+<ul>
+<li>在多核状态下，某个核执行到带 lock 的指令时，CPU 会让总线锁住，当这个核把此指令执行完毕，再<br>开启总线。这个过程中不会被线程的调度机制所打断，保证了多个线程对内存操作的准确性，是原子<br>的。</li>
+</ul>
+</blockquote>
+<h4 id="2-2-volatile"><a href="#2-2-volatile" class="headerlink" title="2.2 volatile"></a>2.2 volatile</h4><p>获取共享变量时，为了保证该变量的可见性，需要使用 volatile 修饰。</p>
+<p>它可以用来修饰成员变量和静态成员变量，他可以避免线程从自己的工作缓存中查找变量的值，必须到主存中获取它的值，线程操作 volatile 变量都是直接操作主存。即一个线程对 volatile 变量的修改，对另一个线程可见。</p>
+<blockquote>
+<p><strong>注意</strong><br>volatile 仅仅保证了共享变量的可见性，让其它线程能够看到最新值，但不能解决指令交错问题（不能保证原子性）</p>
+</blockquote>
+<p>CAS 必须借助 volatile 才能读取到共享变量的最新值来实现【比较并交换】的效果</p>
+<h4 id="2-3-为什么无锁效率高"><a href="#2-3-为什么无锁效率高" class="headerlink" title="2.3 为什么无锁效率高"></a>2.3 为什么无锁效率高</h4><ul>
+<li>无锁情况下，即使重试失败，线程始终在高速运行，没有停歇，而 synchronized 会让线程在没有获得锁的时候，发生上下文切换，进入阻塞。打个比喻</li>
+<li>线程就好像高速跑道上的赛车，高速运行时，速度超快，一旦发生上下文切换，就好比赛车要减速、熄火，等被唤醒又得重新打火、启动、加速… 恢复到高速运行，代价比较大</li>
+<li>但无锁情况下，因为线程要保持运行，需要额外 CPU 的支持，CPU 在这里就好比高速跑道，没有额外的跑道，线程想高速运行也无从谈起，虽然不会进入阻塞，但由于没有分到时间片，仍然会进入可运行状态，还是会导致上下文切换。</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/Xylitol415/Hexo_Blog_Pictures/img/SixThreadState1.png" srcset="/img/loading.gif" lazyload alt="线程状态转换图"></p>
+<h4 id="2-4-CAS-的特点"><a href="#2-4-CAS-的特点" class="headerlink" title="2.4 CAS 的特点"></a>2.4 CAS 的特点</h4><p>结合 CAS 和 volatile 可以实现无锁并发，适用于线程数少、多核 CPU 的场景下。</p>
+<ul>
+<li>CAS 是基于乐观锁的思想：最乐观的估计，不怕别的线程来修改共享变量，就算改了也没关系，我吃亏点再重试呗。</li>
+<li>synchronized 是基于悲观锁的思想：最悲观的估计，得防着其它线程来修改共享变量，我上了锁你们都别想改，我改完了解开锁，你们才有机会。</li>
+<li>CAS 体现的是无锁并发、无阻塞并发，请仔细体会这两句话的意思<ul>
+<li>因为没有使用 synchronized，所以线程不会陷入阻塞，这是效率提升的因素之一</li>
+<li>但如果竞争激烈，可以想到重试必然频繁发生，反而效率会受影响</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-原子整数"><a href="#3-原子整数" class="headerlink" title="3. 原子整数"></a>3. 原子整数</h3><p><code>J.U.C </code>并发包提供了：</p>
+<ul>
+<li>AtomicBoolean</li>
+<li>AtomicInteger</li>
+<li>AtomicLong </li>
+</ul>
+<p>以 AtomicInteger 为例</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-type">AtomicInteger</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AtomicInteger</span>(<span class="hljs-number">0</span>);<br><br><span class="hljs-comment">// 获取并自增（i = 0, 结果 i = 1, 返回 0），类似于 i++</span><br>System.out.println(i.getAndIncrement());<br><br><span class="hljs-comment">// 自增并获取（i = 1, 结果 i = 2, 返回 2），类似于 ++i</span><br>System.out.println(i.incrementAndGet());<br><br><span class="hljs-comment">// 自减并获取（i = 2, 结果 i = 1, 返回 1），类似于 --i</span><br>System.out.println(i.decrementAndGet());<br><br><span class="hljs-comment">// 获取并自减（i = 1, 结果 i = 0, 返回 1），类似于 i--</span><br>System.out.println(i.getAndDecrement());<br><br><span class="hljs-comment">// 获取并加值（i = 0, 结果 i = 5, 返回 0）</span><br>System.out.println(i.getAndAdd(<span class="hljs-number">5</span>));<br><br><span class="hljs-comment">// 加值并获取（i = 5, 结果 i = 0, 返回 0）</span><br>System.out.println(i.addAndGet(-<span class="hljs-number">5</span>));<br><br><span class="hljs-comment">// 获取并更新（i = 0, p 为 i 的当前值, 结果 i = -2, 返回 0）</span><br><span class="hljs-comment">// 其中函数中的操作能保证原子，但函数需要无副作用</span><br>System.out.println(i.getAndUpdate(p -&gt; p - <span class="hljs-number">2</span>));<br><br><span class="hljs-comment">// 更新并获取（i = -2, p 为 i 的当前值, 结果 i = 0, 返回 0）</span><br><span class="hljs-comment">// 其中函数中的操作能保证原子，但函数需要无副作用</span><br>System.out.println(i.updateAndGet(p -&gt; p + <span class="hljs-number">2</span>));<br><br><span class="hljs-comment">// 获取并计算（i = 0, p 为 i 的当前值, x 为参数1, 结果 i = 10, 返回 0）</span><br><span class="hljs-comment">// 其中函数中的操作能保证原子，但函数需要无副作用</span><br><span class="hljs-comment">// getAndUpdate 如果在 lambda 中引用了外部的局部变量，要保证该局部变量是 final 的</span><br><span class="hljs-comment">// getAndAccumulate 可以通过 参数1 来引用外部的局部变量，但因为其不在 lambda 中因此不必是 final</span><br>System.out.println(i.getAndAccumulate(<span class="hljs-number">10</span>, (p, x) -&gt; p + x));<br><br><span class="hljs-comment">// 计算并获取（i = 10, p 为 i 的当前值, x 为参数1, 结果 i = 0, 返回 0）</span><br><span class="hljs-comment">// 其中函数中的操作能保证原子，但函数需要无副作用</span><br>System.out.println(i.accumulateAndGet(-<span class="hljs-number">10</span>, (p, x) -&gt; p + x));<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="4-原子引用"><a href="#4-原子引用" class="headerlink" title="4. 原子引用"></a>4. 原子引用</h3><p>为什么需要原子引用类型？</p>
+<p>保证引用类型的共享变量是线程安全的（确保这个原子引用没有引用过别人）。基本类型原子类只能更新一个变量，如果需要原子更新多个变量，需要使用引用类型原子类。</p>
+<ul>
+<li>AtomicReference：引用类型原子类。</li>
+<li>AtomicMarkableReference：原子更新带有版本号的引用类型，该类将整数值与引用关联起来，可以解决使用 CAS 进行原子更新时可能出现的 ABA 问题。</li>
+<li>AtomicStampedReference：原子更新带有标记的引用类型。该类将 boolean 标记与引用关联起来。</li>
+</ul>
+<p>对于如下方法</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">DecimalAccount</span> &#123;<br>    <span class="hljs-comment">// 获取余额</span><br>    BigDecimal <span class="hljs-title function_">getBalance</span><span class="hljs-params">()</span>;<br>    <span class="hljs-comment">// 取款</span><br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">withdraw</span><span class="hljs-params">(BigDecimal amount)</span>;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">    * 方法内会启动 1000 个线程，每个线程做 -10 元 的操作</span><br><span class="hljs-comment">    * 如果初始余额为 10000 那么正确的结果应当是 0</span><br><span class="hljs-comment">    */</span><br>    <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">demo</span><span class="hljs-params">(DecimalAccount account)</span> &#123;<br>        List&lt;Thread&gt; ts = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">1000</span>; i++) &#123;<br>            ts.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; &#123;<br>            	account.withdraw(BigDecimal.TEN);<br>        	&#125;));<br>        &#125;<br>        ts.forEach(Thread::start);<br>        ts.forEach(t -&gt; &#123;<br>            <span class="hljs-keyword">try</span> &#123;<br>            	t.join();<br>            &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>            	e.printStackTrace();<br>            &#125;<br>        &#125;);<br>        System.out.println(account.getBalance());<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>可以提供不同的 DecimalAccount 实现，通过<code>synchronized</code>加锁或<code>CAS</code>无锁的方式实现安全的取款操作</p>
+<h4 id="4-1-不安全实现"><a href="#4-1-不安全实现" class="headerlink" title="4.1 不安全实现"></a>4.1 不安全实现</h4><figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">DecimalAccountUnsafe</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">DecimalAccount</span> &#123;<br>	BigDecimal balance;<br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">DecimalAccountUnsafe</span><span class="hljs-params">(BigDecimal balance)</span> &#123;<br>    	<span class="hljs-built_in">this</span>.balance = balance;<br>    &#125;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">getBalance</span><span class="hljs-params">()</span> &#123;<br>    	<span class="hljs-keyword">return</span> balance;<br>    &#125;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">withdraw</span><span class="hljs-params">(BigDecimal amount)</span> &#123;<br>        <span class="hljs-type">BigDecimal</span> <span class="hljs-variable">balance</span> <span class="hljs-operator">=</span> <span class="hljs-built_in">this</span>.getBalance();<br>        <span class="hljs-built_in">this</span>.balance = balance.subtract(amount);<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<h4 id="4-2-安全实现-使用-CAS"><a href="#4-2-安全实现-使用-CAS" class="headerlink" title="4.2 安全实现-使用 CAS"></a>4.2 安全实现-使用 CAS</h4><figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">DecimalAccountSafeCas</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">DecimalAccount</span> &#123;<br>    AtomicReference&lt;BigDecimal&gt; ref;<br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">DecimalAccountSafeCas</span><span class="hljs-params">(BigDecimal balance)</span> &#123;<br>    	ref = <span class="hljs-keyword">new</span> <span class="hljs-title class_">AtomicReference</span>&lt;&gt;(balance);<br>    &#125;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">getBalance</span><span class="hljs-params">()</span> &#123;<br>    	<span class="hljs-keyword">return</span> ref.get();<br>    &#125;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">withdraw</span><span class="hljs-params">(BigDecimal amount)</span> &#123;<br>        <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) &#123;<br>            <span class="hljs-type">BigDecimal</span> <span class="hljs-variable">prev</span> <span class="hljs-operator">=</span> ref.get();<br>            <span class="hljs-type">BigDecimal</span> <span class="hljs-variable">next</span> <span class="hljs-operator">=</span> prev.subtract(amount);<br>            <span class="hljs-keyword">if</span> (ref.compareAndSet(prev, next)) &#123;<br>                <span class="hljs-keyword">break</span>;<br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<h4 id="4-3-ABA问题及解决"><a href="#4-3-ABA问题及解决" class="headerlink" title="4.3 ABA问题及解决"></a>4.3 ABA问题及解决</h4><p><strong>ABA问题</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> AtomicReference&lt;String&gt; ref = <span class="hljs-keyword">new</span> <span class="hljs-title class_">AtomicReference</span>&lt;&gt;(<span class="hljs-string">&quot;A&quot;</span>);<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException &#123;<br>    log.debug(<span class="hljs-string">&quot;main start...&quot;</span>);<br>    <span class="hljs-comment">// 获取值 A</span><br>	<span class="hljs-comment">// 这个共享变量被其它线程修改过</span><br>    <span class="hljs-type">String</span> <span class="hljs-variable">preVal</span> <span class="hljs-operator">=</span> ref.get();<br>    other();<br>    TimeUnit.SECONDS.sleep(<span class="hljs-number">1</span>);<br>    <span class="hljs-comment">// 尝试改为 C</span><br>    log.debug(<span class="hljs-string">&quot;change A-&gt;C &#123;&#125;&quot;</span>, ref.compareAndSet(preVal, <span class="hljs-string">&quot;C&quot;</span>));<br>&#125;<br><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">other</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException &#123;<br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; &#123;<br>        log.debug(<span class="hljs-string">&quot;change A-&gt;B &#123;&#125;&quot;</span>, ref.compareAndSet(ref.get(), <span class="hljs-string">&quot;B&quot;</span>));<br>    &#125;, <span class="hljs-string">&quot;t1&quot;</span>).start();<br>    TimeUnit.SECONDS.sleep(<span class="hljs-number">1</span>);<br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; &#123;<br>        log.debug(<span class="hljs-string">&quot;change B-&gt;A &#123;&#125;&quot;</span>, ref.compareAndSet(ref.get(), <span class="hljs-string">&quot;A&quot;</span>));<br>    &#125;, <span class="hljs-string">&quot;t2&quot;</span>).start();<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>输出</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-number">11</span>:<span class="hljs-number">29</span>:<span class="hljs-number">52.325</span> c.Test36 [main] - main start...<br><span class="hljs-number">11</span>:<span class="hljs-number">29</span>:<span class="hljs-number">52.379</span> c.Test36 [t1] - change A-&gt;B <span class="hljs-literal">true</span><br><span class="hljs-number">11</span>:<span class="hljs-number">29</span>:<span class="hljs-number">52.879</span> c.Test36 [t2] - change B-&gt;A <span class="hljs-literal">true</span><br><span class="hljs-number">11</span>:<span class="hljs-number">29</span>:<span class="hljs-number">53.880</span> c.Test36 [main] - change A-&gt;C <span class="hljs-literal">true</span><br></code></pre></div></td></tr></table></figure>
+
+<p>主线程仅能判断出共享变量的值与最初值 A 是否相同，不能感知到这种从 A 改为 B 又 改回 A 的情况，如果主线程希望：只要有其它线程【动过了】共享变量，那么自己的 CAS 就算失败，这时，仅比较值是不够的，需要再加一个版本号</p>
+<p><strong>AtomicStampedReference</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">static</span> AtomicStampedReference&lt;String&gt; ref = <span class="hljs-keyword">new</span> <span class="hljs-title class_">AtomicStampedReference</span>&lt;&gt;(<span class="hljs-string">&quot;A&quot;</span>, <span class="hljs-number">0</span>);<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException &#123;<br>    log.debug(<span class="hljs-string">&quot;main start...&quot;</span>);<br>    <span class="hljs-comment">// 获取值 A</span><br>    <span class="hljs-type">String</span> <span class="hljs-variable">prev</span> <span class="hljs-operator">=</span> ref.getReference();<br>    <span class="hljs-comment">// 获取版本号</span><br>    <span class="hljs-type">int</span> <span class="hljs-variable">stamp</span> <span class="hljs-operator">=</span> ref.getStamp();<br>    log.debug(<span class="hljs-string">&quot;版本 &#123;&#125;&quot;</span>, stamp);<br>    <span class="hljs-comment">// 如果中间有其它线程干扰，发生了 ABA 现象</span><br>    other();<br>    sleep(<span class="hljs-number">1</span>);<br>    <span class="hljs-comment">// 尝试改为 C</span><br>    log.debug(<span class="hljs-string">&quot;change A-&gt;C &#123;&#125;&quot;</span>, ref.compareAndSet(prev, <span class="hljs-string">&quot;C&quot;</span>, stamp, stamp + <span class="hljs-number">1</span>));<br>&#125;<br><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">other</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; &#123;<br>        log.debug(<span class="hljs-string">&quot;change A-&gt;B &#123;&#125;&quot;</span>, ref.compareAndSet(ref.getReference(), <span class="hljs-string">&quot;B&quot;</span>, ref.getStamp(), ref.getStamp() + <span class="hljs-number">1</span>));<br>    	log.debug(<span class="hljs-string">&quot;更新版本为 &#123;&#125;&quot;</span>, ref.getStamp());<br>    &#125;, <span class="hljs-string">&quot;t1&quot;</span>).start();<br>    sleep(<span class="hljs-number">0.5</span>);<br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; &#123;<br>        log.debug(<span class="hljs-string">&quot;change B-&gt;A &#123;&#125;&quot;</span>, ref.compareAndSet(ref.getReference(), <span class="hljs-string">&quot;A&quot;</span>, ref.getStamp(), ref.getStamp() + <span class="hljs-number">1</span>));<br>        log.debug(<span class="hljs-string">&quot;更新版本为 &#123;&#125;&quot;</span>, ref.getStamp());<br>    &#125;, <span class="hljs-string">&quot;t2&quot;</span>).start();<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>输出为</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-number">15</span>:<span class="hljs-number">41</span>:<span class="hljs-number">34.891</span> c.Test36 [main] - main start...<br><span class="hljs-number">15</span>:<span class="hljs-number">41</span>:<span class="hljs-number">34.894</span> c.Test36 [main] - 版本 <span class="hljs-number">0</span><br><span class="hljs-number">15</span>:<span class="hljs-number">41</span>:<span class="hljs-number">34.956</span> c.Test36 [t1] - change A-&gt;B <span class="hljs-literal">true</span><br><span class="hljs-number">15</span>:<span class="hljs-number">41</span>:<span class="hljs-number">34.956</span> c.Test36 [t1] - 更新版本为 <span class="hljs-number">1</span><br><span class="hljs-number">15</span>:<span class="hljs-number">41</span>:<span class="hljs-number">35.457</span> c.Test36 [t2] - change B-&gt;A <span class="hljs-literal">true</span><br><span class="hljs-number">15</span>:<span class="hljs-number">41</span>:<span class="hljs-number">35.457</span> c.Test36 [t2] - 更新版本为 <span class="hljs-number">2</span><br><span class="hljs-number">15</span>:<span class="hljs-number">41</span>:<span class="hljs-number">36.457</span> c.Test36 [main] - change A-&gt;C <span class="hljs-literal">false</span><br></code></pre></div></td></tr></table></figure>
+
+<p>AtomicStampedReference 可以给原子引用加上版本号，追踪原子引用整个的变化过程，如： <code>A -&gt; B -&gt; A -&gt;C </code>，通过AtomicStampedReference，我们可以知道，引用变量中途被更改了几次。</p>
+<p>但是有时候，并不关心引用变量更改了几次，只是单纯的关心<strong>是否更改过</strong>，所以就有了<strong>AtomicMarkableReference</strong></p>
+<h3 id="5-原子数组"><a href="#5-原子数组" class="headerlink" title="5. 原子数组"></a>5. 原子数组</h3><ul>
+<li>AtomicIntegerArray</li>
+<li>AtomicLongArray</li>
+<li>AtomicReferenceArray </li>
+</ul>
+<p>对于如下方法</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment">    参数1，提供数组、可以是线程不安全数组或线程安全数组</span><br><span class="hljs-comment">    参数2，获取数组长度的方法</span><br><span class="hljs-comment">    参数3，自增方法，回传 array, index</span><br><span class="hljs-comment">    参数4，打印数组的方法</span><br><span class="hljs-comment">*/</span><br><span class="hljs-comment">// supplier 提供者 无中生有 ()-&gt;结果</span><br><span class="hljs-comment">// function 函数 一个参数一个结果 (参数)-&gt;结果 , BiFunction (参数1,参数2)-&gt;结果</span><br><span class="hljs-comment">// consumer 消费者 一个参数没结果 (参数)-&gt;void, BiConsumer (参数1,参数2)-&gt;</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> &lt;T&gt; <span class="hljs-keyword">void</span> <span class="hljs-title function_">demo</span><span class="hljs-params">(</span><br><span class="hljs-params">    Supplier&lt;T&gt; arraySupplier,</span><br><span class="hljs-params">    Function&lt;T,Integer&gt; lengthFun,</span><br><span class="hljs-params">    BiConsumer&lt;T,Integer&gt; putConsumer,</span><br><span class="hljs-params">    Consumer&lt;T&gt; printConsumer)</span> &#123;<br>    ArrayList&lt;Thread&gt; ts = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>    <span class="hljs-type">T</span> <span class="hljs-variable">array</span> <span class="hljs-operator">=</span> arraySupplier.get();<br>    <span class="hljs-type">int</span> <span class="hljs-variable">length</span> <span class="hljs-operator">=</span> lengthFun.apply(array);<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; length; i++) &#123;<br>        <span class="hljs-comment">// 每个线程对数组作 10000 次操作</span><br>        ts.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(()-&gt;&#123;<br>            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">j</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; j &lt; <span class="hljs-number">10000</span>; j++) &#123;<br>                putConsumer.accept(array,j%length);<br>            &#125;<br>        &#125;));<br>    &#125;<br>    ts.forEach(t-&gt;t.start()); <span class="hljs-comment">// 启动所有线程</span><br>    ts.forEach(t-&gt;&#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            t.join();<br>        &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>            e.printStackTrace();<br>        &#125;<br>    &#125;); <span class="hljs-comment">// 等所有线程结束</span><br>    printConsumer.accept(array);<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<h4 id="5-1-不安全的数组"><a href="#5-1-不安全的数组" class="headerlink" title="5.1 不安全的数组"></a>5.1 不安全的数组</h4><figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java">demo(<br>    ()-&gt;<span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[<span class="hljs-number">10</span>],<br>    (array)-&gt;array.length,<br>    (array, index) -&gt; array[index]++,<br>    array-&gt; System.out.println(Arrays.toString(array))<br>);<br></code></pre></div></td></tr></table></figure>
+
+<p>结果</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java">[<span class="hljs-number">9870</span>, <span class="hljs-number">9862</span>, <span class="hljs-number">9774</span>, <span class="hljs-number">9697</span>, <span class="hljs-number">9683</span>, <span class="hljs-number">9678</span>, <span class="hljs-number">9679</span>, <span class="hljs-number">9668</span>, <span class="hljs-number">9680</span>, <span class="hljs-number">9698</span>]<br></code></pre></div></td></tr></table></figure>
+
+<h4 id="5-2-安全的数组"><a href="#5-2-安全的数组" class="headerlink" title="5.2 安全的数组"></a>5.2 安全的数组</h4><figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java">demo(<br>    ()-&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">AtomicIntegerArray</span>(<span class="hljs-number">10</span>),<br>    (array) -&gt; array.length(),<br>    (array, index) -&gt; array.getAndIncrement(index),<br>    array -&gt; System.out.println(array)<br>);<br></code></pre></div></td></tr></table></figure>
+
+<p>结果</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java">[<span class="hljs-number">10000</span>, <span class="hljs-number">10000</span>, <span class="hljs-number">10000</span>, <span class="hljs-number">10000</span>, <span class="hljs-number">10000</span>, <span class="hljs-number">10000</span>, <span class="hljs-number">10000</span>, <span class="hljs-number">10000</span>, <span class="hljs-number">10000</span>, <span class="hljs-number">10000</span>]<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="6-字段更新器"><a href="#6-字段更新器" class="headerlink" title="6.字段更新器"></a>6.字段更新器</h3><ul>
+<li>AtomicReferenceFieldUpdater // 域 字段</li>
+<li>AtomicIntegerFieldUpdater</li>
+<li>AtomicLongFieldUpdater</li>
+</ul>
+<p>利用字段更新器，可以针对对象的某个域（Field）进行原子操作，只能配合 volatile 修饰的字段使用，否则会出现异常</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">Exception <span class="hljs-keyword">in</span> thread <span class="hljs-string">&quot;main&quot;</span> java.lang.IllegalArgumentException: Must be volatile <span class="hljs-built_in">type</span><br></code></pre></div></td></tr></table></figure>
+
+
+
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Test5</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> field;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        AtomicIntegerFieldUpdater&lt;TestFieldUpdater&gt; fieldUpdater = AtomicIntegerFieldUpdater.newUpdater(TestFieldUpdater.class, <span class="hljs-string">&quot;field&quot;</span>);<br>        <span class="hljs-type">TestFieldUpdater</span> <span class="hljs-variable">updater</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TestFieldUpdater</span>();<br>        fieldUpdater.compareAndSet(updater, <span class="hljs-number">0</span>, <span class="hljs-number">10</span>);<br>        <span class="hljs-comment">// 修改成功 field = 10</span><br>        System.out.println(updater.field);<br>        <span class="hljs-comment">// 修改成功 field = 20</span><br>        fieldUpdater.compareAndSet(updater, <span class="hljs-number">10</span>, <span class="hljs-number">20</span>);<br>        System.out.println(updater.field);<br>        <span class="hljs-comment">// 修改失败 field = 20</span><br>        fieldUpdater.compareAndSet(updater, <span class="hljs-number">10</span>, <span class="hljs-number">30</span>);<br>        System.out.println(updater.field);<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="7-原子累加器"><a href="#7-原子累加器" class="headerlink" title="7. 原子累加器"></a>7. 原子累加器</h3><p><strong>累加器性能比较</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">TestLongAdder</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">5</span>; i++) &#123;<br>            demo(()-&gt;<span class="hljs-keyword">new</span> <span class="hljs-title class_">AtomicLong</span>(<span class="hljs-number">0</span>),(ref)-&gt;ref.getAndIncrement());<br>        &#125;<br><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">5</span>; i++) &#123;<br>            demo(()-&gt;<span class="hljs-keyword">new</span> <span class="hljs-title class_">LongAdder</span>(),(ref)-&gt;ref.increment());<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> &lt;T&gt; <span class="hljs-keyword">void</span> <span class="hljs-title function_">demo</span><span class="hljs-params">(Supplier&lt;T&gt; supplier, Consumer&lt;T&gt; consumer)</span> &#123;<br>        ArrayList&lt;Thread&gt; list = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br><br>        <span class="hljs-type">T</span> <span class="hljs-variable">adder</span> <span class="hljs-operator">=</span> supplier.get();<br>        <span class="hljs-comment">// 4 个线程，每人累加 50 万</span><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">4</span>; i++) &#123;<br>            list.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; &#123;<br>                <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">j</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; j &lt; <span class="hljs-number">500000</span>; j++) &#123;<br>                    consumer.accept(adder);<br>                &#125;<br>            &#125;));<br>        &#125;<br>        <span class="hljs-type">long</span> <span class="hljs-variable">start</span> <span class="hljs-operator">=</span> System.nanoTime();<br>        list.forEach(t -&gt; t.start());<br>        list.forEach(t -&gt; &#123;<br>            <span class="hljs-keyword">try</span> &#123;<br>                t.join();<br>            &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>                e.printStackTrace();<br>            &#125;<br>        &#125;);<br>        <span class="hljs-type">long</span> <span class="hljs-variable">end</span> <span class="hljs-operator">=</span> System.nanoTime();<br>        System.out.println(adder + <span class="hljs-string">&quot; cost:&quot;</span> + (end - start)/<span class="hljs-number">1000_000</span>);<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>比较 AtomicLong 与 LongAdder，输出</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-number">2000000</span> cost:<span class="hljs-number">80</span><br><span class="hljs-number">2000000</span> cost:<span class="hljs-number">76</span><br><span class="hljs-number">2000000</span> cost:<span class="hljs-number">60</span><br><span class="hljs-number">2000000</span> cost:<span class="hljs-number">56</span><br><span class="hljs-number">2000000</span> cost:<span class="hljs-number">52</span><br><span class="hljs-number">2000000</span> cost:<span class="hljs-number">32</span><br><span class="hljs-number">2000000</span> cost:<span class="hljs-number">5</span><br><span class="hljs-number">2000000</span> cost:<span class="hljs-number">8</span><br><span class="hljs-number">2000000</span> cost:<span class="hljs-number">8</span><br><span class="hljs-number">2000000</span> cost:<span class="hljs-number">20</span><br></code></pre></div></td></tr></table></figure>
+
+<p>性能提升的原因很简单，就是在有竞争时，设置多个累加单元，Therad-0 累加 Cell[0]，而 Thread-1 累加Cell[1]… 最后将结果汇总。这样它们在累加时操作的不同的 Cell 变量，因此减少了 CAS 重试失败，从而提高性能。</p>
+<h3 id="8-Unsafe"><a href="#8-Unsafe" class="headerlink" title="8. Unsafe"></a>8. Unsafe</h3><h4 id="8-1-概述"><a href="#8-1-概述" class="headerlink" title="8.1 概述"></a>8.1 概述</h4><p>Unsafe 对象提供了非常底层的，操作内存、线程的方法，Unsafe 对象不能直接调用，只能通过反射获得</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UnsafeAccessor</span> &#123;<br>	<span class="hljs-keyword">static</span> Unsafe unsafe;<br>    <span class="hljs-keyword">static</span> &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-type">Field</span> <span class="hljs-variable">theUnsafe</span> <span class="hljs-operator">=</span> Unsafe.class.getDeclaredField(<span class="hljs-string">&quot;theUnsafe&quot;</span>);<br>            theUnsafe.setAccessible(<span class="hljs-literal">true</span>);<br>            unsafe = (Unsafe) theUnsafe.get(<span class="hljs-literal">null</span>);<br>        &#125; <span class="hljs-keyword">catch</span> (NoSuchFieldException | IllegalAccessException e) &#123;<br>        	<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(e);<br>        &#125;<br>    &#125;<br>    <br>    <span class="hljs-keyword">static</span> Unsafe <span class="hljs-title function_">getUnsafe</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> unsafe;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<h4 id="8-2-Unsafe-实现-CAS-操作"><a href="#8-2-Unsafe-实现-CAS-操作" class="headerlink" title="8.2 Unsafe 实现 CAS 操作"></a>8.2 Unsafe 实现 CAS 操作</h4><figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Data</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Student</span> &#123;<br>    <span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> id;<br>    <span class="hljs-keyword">volatile</span> String name;<br>&#125;<br><br><span class="hljs-type">Unsafe</span> <span class="hljs-variable">unsafe</span> <span class="hljs-operator">=</span> UnsafeAccessor.getUnsafe();<br><span class="hljs-type">Field</span> <span class="hljs-variable">id</span> <span class="hljs-operator">=</span> Student.class.getDeclaredField(<span class="hljs-string">&quot;id&quot;</span>);<br><span class="hljs-type">Field</span> <span class="hljs-variable">name</span> <span class="hljs-operator">=</span> Student.class.getDeclaredField(<span class="hljs-string">&quot;name&quot;</span>);<br><br><span class="hljs-comment">// 获得成员变量的偏移量</span><br><span class="hljs-type">long</span> <span class="hljs-variable">idOffset</span> <span class="hljs-operator">=</span> UnsafeAccessor.unsafe.objectFieldOffset(id);<br><span class="hljs-type">long</span> <span class="hljs-variable">nameOffset</span> <span class="hljs-operator">=</span> UnsafeAccessor.unsafe.objectFieldOffset(name);<br><br><span class="hljs-type">Student</span> <span class="hljs-variable">student</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Student</span>();<br><span class="hljs-comment">// 使用 cas 方法替换成员变量的值</span><br>UnsafeAccessor.unsafe.compareAndSwapInt(student, idOffset, <span class="hljs-number">0</span>, <span class="hljs-number">20</span>); <span class="hljs-comment">// 返回 true</span><br>UnsafeAccessor.unsafe.compareAndSwapObject(student, nameOffset, <span class="hljs-literal">null</span>, <span class="hljs-string">&quot;张三&quot;</span>); <span class="hljs-comment">// 返回 true</span><br><br>System.out.println(student);<br></code></pre></div></td></tr></table></figure>
+
+<p>输出</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java">Student(id=<span class="hljs-number">20</span>, name=张三)<br></code></pre></div></td></tr></table></figure>
+
+<h4 id="8-3-Unsafe-实现-原子整型类"><a href="#8-3-Unsafe-实现-原子整型类" class="headerlink" title="8.3 Unsafe 实现 原子整型类"></a>8.3 Unsafe 实现 原子整型类</h4><p>使用自定义的 AtomicData 实现之前线程安全的原子整数 Account 实现</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyAtomicInteger</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Account</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> value;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">long</span> valueOffset;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Unsafe UNSAFE;<br>    <br>    <span class="hljs-keyword">static</span> &#123;<br>        UNSAFE = UnsafeAccessor.getUnsafe();<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-comment">// value 属性在 DataContainer 对象中的偏移量，用于 Unsafe 直接访问该属性</span><br>            valueOffset = UNSAFE.objectFieldOffset(MyAtomicInteger.class.getDeclaredField(<span class="hljs-string">&quot;value&quot;</span>));<br>        &#125; <span class="hljs-keyword">catch</span> (NoSuchFieldException e) &#123;<br>            e.printStackTrace();<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(e);<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getValue</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> value;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">decrement</span><span class="hljs-params">(<span class="hljs-type">int</span> amount)</span> &#123;<br>        <span class="hljs-keyword">while</span>(<span class="hljs-literal">true</span>) &#123;<br>            <span class="hljs-comment">// 获取共享变量旧值，可以在这一行加入断点，修改 value 调试来加深理解</span><br>            <span class="hljs-type">int</span> <span class="hljs-variable">prev</span> <span class="hljs-operator">=</span> <span class="hljs-built_in">this</span>.value;<br>            <span class="hljs-type">int</span> <span class="hljs-variable">next</span> <span class="hljs-operator">=</span> prev - amount;<br>            <span class="hljs-comment">// cas 尝试修改旧值 prev 为 next，如果期间旧值被别的线程改了，返回 false</span><br>            <span class="hljs-keyword">if</span> (UNSAFE.compareAndSwapInt(<span class="hljs-built_in">this</span>, valueOffset, prev, next)) &#123;<br>                <span class="hljs-keyword">break</span>;<br>            &#125;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">MyAtomicInteger</span><span class="hljs-params">(<span class="hljs-type">int</span> value)</span> &#123;<br>        <span class="hljs-built_in">this</span>.value = value;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> Integer <span class="hljs-title function_">getBalance</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> getValue();<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">withdraw</span><span class="hljs-params">(Integer amount)</span> &#123;<br>        decrement(amount);<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">并发编程</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/Java/">Java</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Java/">Java</a>
+                    
+                      <a class="hover-with-bg" href="/tags/CAS/">CAS</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/JUC/Thread_Memory/">
+                        <span class="hidden-mobile">Java并发编程——共享模型之内存</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="gitalk-container"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#gitalk-container', function() {
+      Fluid.utils.createCssLink('/css/gitalk.css')
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', function() {
+        var options = Object.assign(
+          {"clientID":"1f52e6d566b01ad34a0b","clientSecret":"ee37abaab13a3b0680ef4c2558aa82c886598d75","repo":"Hexo_Blog_Comments","owner":"Xylitol415","admin":["Xylitol415"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://shielded-brushlands-08810.herokuapp.com/https://github.com/login/oauth/access_token"},
+          {
+            id: '71115fdc839730f86982a20576a43967'
+          }
+        )
+        var gitalk = new Gitalk(options);
+        gitalk.render('gitalk-container');
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <p><span>Copyright&nbsp;<i class="iconfont icon-copyright"></i>&nbsp;2020-2022 Seon Fang. All rights reserved.</span></p> <p><i class="iconfont icon-map"></i><span>&nbsp;Haidian District, Beijing, China</span></p> <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Powered by Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a>    
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
