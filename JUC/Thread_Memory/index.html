@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/Xylitol415/Hexo_Blog_Pictures/img/JUC_Header_IMG.png">
 <meta property="article:published_time" content="2022-05-11T05:46:05.000Z">
-<meta property="article:modified_time" content="2022-05-11T09:42:35.362Z">
+<meta property="article:modified_time" content="2022-05-12T07:12:57.583Z">
 <meta property="article:author" content="Seon Fang">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JMM">
@@ -200,7 +200,7 @@
   
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      9.5k 字
+      11k 字
     </span>
   
 
@@ -209,7 +209,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      80 分钟
+      93 分钟
     </span>
   
 
@@ -242,7 +242,7 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：2022年5月11日 下午
+                  本文最后更新于：2022年5月12日 下午
                 
               </p>
             
@@ -418,6 +418,26 @@ ready = true; // ready 是 volatile 赋值带写屏障
 
 <p><img src="https://cdn.jsdelivr.net/gh/Xylitol415/Hexo_Blog_Pictures/img/Memory_3_5.png" srcset="/img/loading.gif" lazyload alt="volatile解决DCL指令重排问题"></p>
 <h4 id="3-3-happens-before"><a href="#3-3-happens-before" class="headerlink" title="3.3 happens-before"></a>3.3 happens-before</h4><p>happens-before 规定了对共享变量的写操作对其它线程的读操作可见，它是可见性与有序性的一套规则总结，抛开以下 happens-before 规则，JMM 并不能保证一个线程对共享变量的写，对于其它线程对该共享变量的读可见</p>
+<ul>
+<li><p>线程解锁 m 之前对变量的写，对于接下来对 m 加锁的其它线程对该变量的读可见</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">static</span> <span class="hljs-type">int</span> x;<br><span class="hljs-keyword">static</span> <span class="hljs-type">Object</span> <span class="hljs-variable">m</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br><br><span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(()-&gt;&#123;<br>    <span class="hljs-keyword">synchronized</span>(m) &#123;<br>    	x = <span class="hljs-number">10</span>;<br>    &#125;<br>&#125;,<span class="hljs-string">&quot;t1&quot;</span>).start();<br><br><span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(()-&gt;&#123;<br>    <span class="hljs-keyword">synchronized</span>(m) &#123;<br>        System.out.println(x);<br>    &#125;<br>&#125;,<span class="hljs-string">&quot;t2&quot;</span>).start();<br></code></pre></div></td></tr></table></figure></li>
+<li><p>线程对 volatile 变量的写，对接下来其它线程对该变量的读可见</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">volatile</span> <span class="hljs-keyword">static</span> <span class="hljs-type">int</span> x;<br><br><span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(()-&gt;&#123;<br>	x = <span class="hljs-number">10</span>;<br>&#125;,<span class="hljs-string">&quot;t1&quot;</span>).start();<br><br><span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(()-&gt;&#123;<br>	System.out.println(x);<br>&#125;,<span class="hljs-string">&quot;t2&quot;</span>).start();<br></code></pre></div></td></tr></table></figure></li>
+<li><p>线程 start 前对变量的写，对该线程开始后对该变量的读可见</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">static</span> <span class="hljs-type">int</span> x;<br>x = <span class="hljs-number">10</span>;<br><br><span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(()-&gt;&#123;<br>	System.out.println(x);<br>&#125;,<span class="hljs-string">&quot;t2&quot;</span>).start();<br></code></pre></div></td></tr></table></figure></li>
+<li><p>线程结束前对变量的写，对其它线程得知它结束后的读可见（比如其它线程调用 t1.isAlive() 或 t1.join()等待它结束）</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">static</span> <span class="hljs-type">int</span> x;<br><br><span class="hljs-type">Thread</span> <span class="hljs-variable">t1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(()-&gt;&#123;<br>	x = <span class="hljs-number">10</span>;<br>&#125;,<span class="hljs-string">&quot;t1&quot;</span>);<br>t1.start();<br><br>t1.join();<br>System.out.println(x);<br></code></pre></div></td></tr></table></figure></li>
+<li><p>线程 t1 打断 t2（interrupt）前对变量的写，对于其他线程得知 t2 被打断后对变量的读可见（通过t2.interrupted 或 t2.isInterrupted）</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">static</span> <span class="hljs-type">int</span> x;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>    <span class="hljs-type">Thread</span> <span class="hljs-variable">t2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(()-&gt;&#123;<br>        <span class="hljs-keyword">while</span>(<span class="hljs-literal">true</span>) &#123;<br>            <span class="hljs-keyword">if</span>(Thread.currentThread().isInterrupted()) &#123;<br>            	System.out.println(x);<br>            	<span class="hljs-keyword">break</span>;<br>        	&#125;<br>    	&#125;<br>	&#125;,<span class="hljs-string">&quot;t2&quot;</span>);<br>    t2.start();<br>    <br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(()-&gt;&#123;<br>        sleep(<span class="hljs-number">1</span>);<br>        x = <span class="hljs-number">10</span>;<br>        t2.interrupt();<br>    &#125;,<span class="hljs-string">&quot;t1&quot;</span>).start();<br>    <br>    <span class="hljs-keyword">while</span>(!t2.isInterrupted()) &#123;<br>    	Thread.yield();<br>    &#125;<br>    System.out.println(x);<br>&#125;<br></code></pre></div></td></tr></table></figure></li>
+<li><p>对变量默认值（0，false，null）的写，对其它线程对该变量的读可见</p>
+</li>
+<li><p>具有传递性，如果 x hb-&gt; y 并且 y hb-&gt; z 那么有 x hb-&gt; z ，配合 volatile 的防指令重排，有下面的例子</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">volatile</span> <span class="hljs-keyword">static</span> <span class="hljs-type">int</span> x;<br><span class="hljs-keyword">static</span> <span class="hljs-type">int</span> y;<br><br><span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(()-&gt;&#123;<br>    y = <span class="hljs-number">10</span>;<br>    x = <span class="hljs-number">20</span>;<br>&#125;,<span class="hljs-string">&quot;t1&quot;</span>).start();<br><br><span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(()-&gt;&#123;<br>    <span class="hljs-comment">// x=20 对 t2 可见, 同时 y=10 也对 t2 可见</span><br>    System.out.println(x);<br>&#125;,<span class="hljs-string">&quot;t2&quot;</span>).start();<br></code></pre></div></td></tr></table></figure></li>
+</ul>
+<div class="note note-warning">
+            <blockquote><p>变量都是指成员变量或静态成员变量</p></blockquote>
+          </div>
+
 <h4 id="3-4-单例模式"><a href="#3-4-单例模式" class="headerlink" title="3.4 *单例模式"></a><font color='orange' style='font-weight:yellow'>3.4 *单例模式</font></h4><p>单例模式有很多实现方法，饿汉、懒汉、静态内部类、枚举类，试分析每种实现下获取单例对象（即调用getInstance）时的线程安全，并思考注释中的问题</p>
 <div class="note note-primary">
             <p>饿汉式：类加载就会导致该单实例对象被创建<br>懒汉式：类加载不会导致该单实例对象被创建，而是首次使用该对象时才会创建</p>
