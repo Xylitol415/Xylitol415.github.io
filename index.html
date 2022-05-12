@@ -47,6 +47,10 @@
 
 <!-- 自定义样式保持在最底部 -->
 
+  
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC&display=swap.css">
+
+
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
@@ -187,6 +191,61 @@
               <div class="col-12 col-md-10 m-auto">
                 
 
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/Algorithm/Mathematics/" target="_self">
+          <img src="/img/Algorithm/Base/DataStructure_Tree.png" srcset="/img/loading.gif" lazyload alt="算法之数学知识">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/Algorithm/Mathematics/" target="_self">
+          算法之数学知识
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/Algorithm/Mathematics/" target="_self">
+          
+          本文包含常用数学知识相关算法的java语言实现，如判断素数，素数筛法，分解质因数，约数判定，约数个数与约数之和，欧几里得算法，欧拉函数，快速幂，高斯消元，求组合数等，未完待补充...
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-05-12 15:23" pubdate>
+              2022-05-12
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/Algorithm/">Algorithm</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E7%AE%97%E6%B3%95/">算法</a>
+            
+              <a href="/tags/Java/">Java</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
 
   <div class="row mx-auto index-card">
     
@@ -691,61 +750,6 @@
     </article>
   </div>
 
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/Algorithm/DataStructure/" target="_self">
-          <img src="/img/Algorithm/Base/DataStructure_Tree.png" srcset="/img/loading.gif" lazyload alt="高级数据结构">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/Algorithm/DataStructure/" target="_self">
-          高级数据结构
-        </a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/Algorithm/DataStructure/" target="_self">
-          
-          本文包含常用数据结构的java语言实现，如并查集，字典树，树状数组，线段树等，未完待补充...
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-04-11 17:08" pubdate>
-              2022-04-11
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/Algorithm/">Algorithm</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E7%AE%97%E6%B3%95/">算法</a>
-            
-              <a href="/tags/Java/">Java</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
 
 
   <nav aria-label="navigation">
@@ -804,6 +808,40 @@
 
   
 
+  
+  
+  <!-- 添加网站运行时间 -->
+	<div class="footer-content">
+	  <span id="timeDate">载入天数...</span>
+	  <span id="times">载入时分秒...</span>
+	  <script>
+	  var now = new Date();
+	  function createtime(){
+		  var grt= new Date("04/05/2022 00:00:00");//此处修改你的建站时间或者网站上线时间
+		  now.setTime(now.getTime()+250);
+		  days = (now - grt ) / 1000 / 60 / 60 / 24;
+		  dnum = Math.floor(days);
+		  hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum);
+		  hnum = Math.floor(hours);
+		  if(String(hnum).length ==1 ){
+			  hnum = "0" + hnum;
+		  }
+		  minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+		  mnum = Math.floor(minutes);
+		  if(String(mnum).length ==1 ){
+					mnum = "0" + mnum;
+		  }
+		  seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+		  snum = Math.round(seconds);
+		  if(String(snum).length ==1 ){
+					snum = "0" + snum;
+		  }
+		  document.getElementById("timeDate").innerHTML = "🚀 for&nbsp"+dnum+"&nbspdays";  //此次自定义显示内容
+		  document.getElementById("times").innerHTML = hnum + "&nbsphr&nbsp" + mnum + "&nbspmin&nbsp" + snum + "&nbspsec";
+	  }  //此次自定义显示内容
+	  setInterval("createtime()",250);
+	  </script>
+	</div>
   
 </footer>
 

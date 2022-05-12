@@ -47,6 +47,10 @@
 
 <!-- 自定义样式保持在最底部 -->
 
+  
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC&display=swap.css">
+
+
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
@@ -197,6 +201,62 @@
     <div class="category row">
       <a
         class="category-item collapsed list-group-item category-item-action col-10 col-md-11"
+        id="heading-4afa80e77a07f7488ce4d1bdd8c4977a" role="tab" data-toggle="collapse" href="#collapse-4afa80e77a07f7488ce4d1bdd8c4977a"
+        aria-expanded="false"
+      >
+        Algorithm
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      <a href="/categories/Algorithm/" class="category-count col-2 col-md-1">
+        <i class="iconfont icon-articles"></i>
+        <span>4</span>
+      </a>
+      <div class="category-collapse collapse" id="collapse-4afa80e77a07f7488ce4d1bdd8c4977a" role="tabpanel" aria-labelledby="heading-4afa80e77a07f7488ce4d1bdd8c4977a">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/Algorithm/Mathematics/" class="list-group-item list-group-item-action">
+          <span class="category-post">算法之数学知识</span>
+        </a>
+      
+    
+      
+      
+        <a href="/Algorithm/Graph/" class="list-group-item list-group-item-action">
+          <span class="category-post">图论</span>
+        </a>
+      
+    
+      
+      
+        <a href="/Algorithm/DataStructure/" class="list-group-item list-group-item-action">
+          <span class="category-post">高级数据结构</span>
+        </a>
+      
+    
+      
+      
+        <a href="/Algorithm/Base/" class="list-group-item list-group-item-action">
+          <span class="category-post">基础算法</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+    
+    
+    <div class="category row">
+      <a
+        class="category-item collapsed list-group-item category-item-action col-10 col-md-11"
         id="heading-1a9a671bb1da8c030da96f67497751c7" role="tab" data-toggle="collapse" href="#collapse-1a9a671bb1da8c030da96f67497751c7"
         aria-expanded="false"
       >
@@ -276,55 +336,6 @@
       </div>
     </div>
   
-        
-      </div>
-    </div>
-  
-    
-    
-    <div class="category row">
-      <a
-        class="category-item collapsed list-group-item category-item-action col-10 col-md-11"
-        id="heading-4afa80e77a07f7488ce4d1bdd8c4977a" role="tab" data-toggle="collapse" href="#collapse-4afa80e77a07f7488ce4d1bdd8c4977a"
-        aria-expanded="false"
-      >
-        Algorithm
-        <i class="iconfont icon-arrowright"></i>
-      </a>
-      <a href="/categories/Algorithm/" class="category-count col-2 col-md-1">
-        <i class="iconfont icon-articles"></i>
-        <span>3</span>
-      </a>
-      <div class="category-collapse collapse" id="collapse-4afa80e77a07f7488ce4d1bdd8c4977a" role="tabpanel" aria-labelledby="heading-4afa80e77a07f7488ce4d1bdd8c4977a">
-        
-        
-          
-  <div class="category-post-list">
-    
-    
-      
-      
-        <a href="/Algorithm/Graph/" class="list-group-item list-group-item-action">
-          <span class="category-post">图论</span>
-        </a>
-      
-    
-      
-      
-        <a href="/Algorithm/DataStructure/" class="list-group-item list-group-item-action">
-          <span class="category-post">高级数据结构</span>
-        </a>
-      
-    
-      
-      
-        <a href="/Algorithm/Base/" class="list-group-item list-group-item-action">
-          <span class="category-post">基础算法</span>
-        </a>
-      
-    
-  </div>
-
         
       </div>
     </div>
@@ -622,6 +633,40 @@
 
   
 
+  
+  
+  <!-- 添加网站运行时间 -->
+	<div class="footer-content">
+	  <span id="timeDate">载入天数...</span>
+	  <span id="times">载入时分秒...</span>
+	  <script>
+	  var now = new Date();
+	  function createtime(){
+		  var grt= new Date("04/05/2022 00:00:00");//此处修改你的建站时间或者网站上线时间
+		  now.setTime(now.getTime()+250);
+		  days = (now - grt ) / 1000 / 60 / 60 / 24;
+		  dnum = Math.floor(days);
+		  hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum);
+		  hnum = Math.floor(hours);
+		  if(String(hnum).length ==1 ){
+			  hnum = "0" + hnum;
+		  }
+		  minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+		  mnum = Math.floor(minutes);
+		  if(String(mnum).length ==1 ){
+					mnum = "0" + mnum;
+		  }
+		  seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+		  snum = Math.round(seconds);
+		  if(String(snum).length ==1 ){
+					snum = "0" + snum;
+		  }
+		  document.getElementById("timeDate").innerHTML = "🚀 for&nbsp"+dnum+"&nbspdays";  //此次自定义显示内容
+		  document.getElementById("times").innerHTML = hnum + "&nbsphr&nbsp" + mnum + "&nbspmin&nbsp" + snum + "&nbspsec";
+	  }  //此次自定义显示内容
+	  setInterval("createtime()",250);
+	  </script>
+	</div>
   
 </footer>
 

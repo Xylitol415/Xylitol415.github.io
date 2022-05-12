@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/Xylitol415/Hexo_Blog_Pictures/img/JUC_Header_IMG.png">
 <meta property="article:published_time" content="2022-05-11T09:18:26.000Z">
-<meta property="article:modified_time" content="2022-05-11T09:46:57.452Z">
+<meta property="article:modified_time" content="2022-05-12T10:51:10.075Z">
 <meta property="article:author" content="Seon Fang">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="CAS">
@@ -45,7 +45,7 @@
     
     
       
-      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/lioshi.min.css" />
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/monokai.min.css" />
     
   
 
@@ -66,6 +66,10 @@
 <link  rel="stylesheet" href="/css/main.css" />
 
 <!-- 自定义样式保持在最底部 -->
+
+  
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC&display=swap.css">
+
 
 
   <script id="fluid-configs">
@@ -242,7 +246,7 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：2022年5月11日 下午
+                  本文最后更新于：2022年5月12日 晚上
                 
               </p>
             
@@ -426,15 +430,24 @@
               </div>
               
                 <p class="note note-warning">
-                  
+                  <!-- 
                     本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
-                  
+                   -->
+				  <strong>本文作者: </strong><a href="/">Seon Fang</a> <br>
+				  <strong>本文链接: </strong><a href="http://example.com/JUC/Thread_NoLock/">http://example.com/JUC/Thread_NoLock/</a> <br>
+                  <strong>版权声明: </strong>本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
                 </p>
               
               
                 <div class="post-prevnext">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/Algorithm/Mathematics/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">算法之数学知识</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">
@@ -498,6 +511,50 @@
 <!-- Custom -->
 
 
+
+
+
+      <script>
+          function setClipboardText(event){
+              // clipboardData 对象是为通过编辑菜单、快捷菜单和快捷键执行的编辑操作所保留的，也就是你复制或者剪切内容
+              let clipboardData = event.clipboardData || window.clipboardData;
+              // 如果未复制或者未剪切，则return出去
+              if (!clipboardData) { return; }
+              event.preventDefault();
+              // Selection 对象，表示用户选择的文本范围或光标的当前位置。
+              //     声明一个变量接收 -- 用户输入的剪切或者复制的文本转化为字符串
+              let text = window.getSelection().toString();
+			  let len = text.length;
+			  
+			// 复制文字超过120个就加上版权信息
+              if (len >= 120) {
+                // 如果文本存在则先取消文本默认事件
+                event.preventDefault();
+                // 通过调用常clipboardData对象的 setData(format, data) 方法；来设置相关文本
+                // format: 一个DOMString 表示要添加到 drag object的拖动数据的类型。
+                // data: 一个 DOMString表示要添加到 drag object的数据。
+                var copyright = '\n\n'
+								+ '------------------------------------------------------'
+                                + '\n著作权归作者所有。'
+                                + '\n商业转载请联系作者获得授权，非商业转载请注明出处。'
+                                + '\n作者: Seon Fang'
+                                + '\n邮箱: fx940415@163.com'
+                                + '\n原文地址: http://example.com/JUC/Thread_NoLock/'
+    
+                clipboardData.setData('text/plain', text + copyright);
+    
+              } else {
+				clipboardData.setData('text/plain', text);
+			  }
+          };
+          var contents = document.getElementsByClassName("container-fluid nopadding-x");
+          // 监听文章内容的copy事件
+          contents[0].addEventListener('copy',function(e){
+              setClipboardText(e);
+          });
+      </script>
+
+
     
 
     
@@ -541,6 +598,40 @@
 
   
 
+  
+  
+  <!-- 添加网站运行时间 -->
+	<div class="footer-content">
+	  <span id="timeDate">载入天数...</span>
+	  <span id="times">载入时分秒...</span>
+	  <script>
+	  var now = new Date();
+	  function createtime(){
+		  var grt= new Date("04/05/2022 00:00:00");//此处修改你的建站时间或者网站上线时间
+		  now.setTime(now.getTime()+250);
+		  days = (now - grt ) / 1000 / 60 / 60 / 24;
+		  dnum = Math.floor(days);
+		  hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum);
+		  hnum = Math.floor(hours);
+		  if(String(hnum).length ==1 ){
+			  hnum = "0" + hnum;
+		  }
+		  minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+		  mnum = Math.floor(minutes);
+		  if(String(mnum).length ==1 ){
+					mnum = "0" + mnum;
+		  }
+		  seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+		  snum = Math.round(seconds);
+		  if(String(snum).length ==1 ){
+					snum = "0" + snum;
+		  }
+		  document.getElementById("timeDate").innerHTML = "🚀 for&nbsp"+dnum+"&nbspdays";  //此次自定义显示内容
+		  document.getElementById("times").innerHTML = hnum + "&nbsphr&nbsp" + mnum + "&nbspmin&nbsp" + snum + "&nbspsec";
+	  }  //此次自定义显示内容
+	  setInterval("createtime()",250);
+	  </script>
+	</div>
   
 </footer>
 
