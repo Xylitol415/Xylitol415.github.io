@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/Xylitol415/Hexo_Blog_Pictures/img/JUC_Header_IMG.png">
 <meta property="article:published_time" content="2022-05-11T05:46:05.000Z">
-<meta property="article:modified_time" content="2022-05-12T07:12:57.583Z">
+<meta property="article:modified_time" content="2022-05-12T07:16:09.485Z">
 <meta property="article:author" content="Seon Fang">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JMM">
@@ -435,7 +435,7 @@ ready = true; // ready 是 volatile 赋值带写屏障
 <figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">volatile</span> <span class="hljs-keyword">static</span> <span class="hljs-type">int</span> x;<br><span class="hljs-keyword">static</span> <span class="hljs-type">int</span> y;<br><br><span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(()-&gt;&#123;<br>    y = <span class="hljs-number">10</span>;<br>    x = <span class="hljs-number">20</span>;<br>&#125;,<span class="hljs-string">&quot;t1&quot;</span>).start();<br><br><span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(()-&gt;&#123;<br>    <span class="hljs-comment">// x=20 对 t2 可见, 同时 y=10 也对 t2 可见</span><br>    System.out.println(x);<br>&#125;,<span class="hljs-string">&quot;t2&quot;</span>).start();<br></code></pre></div></td></tr></table></figure></li>
 </ul>
 <div class="note note-warning">
-            <blockquote><p>变量都是指成员变量或静态成员变量</p></blockquote>
+            <p>变量都是指成员变量或静态成员变量</p>
           </div>
 
 <h4 id="3-4-单例模式"><a href="#3-4-单例模式" class="headerlink" title="3.4 *单例模式"></a><font color='orange' style='font-weight:yellow'>3.4 *单例模式</font></h4><p>单例模式有很多实现方法，饿汉、懒汉、静态内部类、枚举类，试分析每种实现下获取单例对象（即调用getInstance）时的线程安全，并思考注释中的问题</p>
