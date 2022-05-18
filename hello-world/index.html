@@ -16,12 +16,12 @@
   <meta name="author" content="Seon Fang">
   <meta name="keywords" content="计算机 编程 JAVA C++">
   
-    <meta name="description" content="HexoHexo是一款快速、简洁且高效的博客框架，有如下特点：  超快速度：Node.js 所带来的超快生成速度，让上百个页面在几秒内瞬间完成渲染。 支持 Markdown：Hexo 支持 GitHub Flavored Markdown 的所有功能，甚至可以整合 Octopress 的大多数插件。 一键部署：只需一条指令即可部署到 GitHub Pages, Heroku 或其他平台。 插件和可">
+    <meta name="description" content="Hexo Hexo是一款快速、简洁且高效的博客框架，有如下特点：  超快速度：Node.js 所带来的超快生成速度，让上百个页面在几秒内瞬间完成渲染。 支持 Markdown：Hexo 支持 GitHub Flavored Markdown 的所有功能，甚至可以整合 Octopress 的大多数插件。 一键部署：只需一条指令即可部署到 GitHub Pages, Heroku 或其他平台">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Hexo + GitHub搭建博客">
 <meta property="og:url" content="http://example.com/hello-world/index.html">
 <meta property="og:site_name" content="Seon&#39;s Blog">
-<meta property="og:description" content="HexoHexo是一款快速、简洁且高效的博客框架，有如下特点：  超快速度：Node.js 所带来的超快生成速度，让上百个页面在几秒内瞬间完成渲染。 支持 Markdown：Hexo 支持 GitHub Flavored Markdown 的所有功能，甚至可以整合 Octopress 的大多数插件。 一键部署：只需一条指令即可部署到 GitHub Pages, Heroku 或其他平台。 插件和可">
+<meta property="og:description" content="Hexo Hexo是一款快速、简洁且高效的博客框架，有如下特点：  超快速度：Node.js 所带来的超快生成速度，让上百个页面在几秒内瞬间完成渲染。 支持 Markdown：Hexo 支持 GitHub Flavored Markdown 的所有功能，甚至可以整合 Octopress 的大多数插件。 一键部署：只需一条指令即可部署到 GitHub Pages, Heroku 或其他平台">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/Xylitol415/Hexo_Blog_Pictures/img/Hexo_1.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/Xylitol415/Hexo_Blog_Pictures/img/Hexo_2.png">
@@ -252,7 +252,8 @@
               </p>
             
             <div class="markdown-body">
-              <h3 id="Hexo"><a href="#Hexo" class="headerlink" title="Hexo"></a>Hexo</h3><p><a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/">Hexo</a>是一款快速、简洁且高效的博客框架，有如下特点：</p>
+              <h3 id="hexo">Hexo</h3>
+<p><a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/">Hexo</a>是一款快速、简洁且高效的博客框架，有如下特点：</p>
 <ul>
 <li><strong>超快速度</strong>：Node.js 所带来的超快生成速度，让上百个页面在几秒内瞬间完成渲染。</li>
 <li><strong>支持 Markdown</strong>：Hexo 支持 GitHub Flavored Markdown 的所有功能，甚至可以整合 Octopress 的大多数插件。</li>
@@ -260,57 +261,60 @@
 <li><strong>插件和可扩展性</strong>：强大的 API 带来无限的可能，与数种模板引擎（EJS，Pug，Nunjucks）和工具（Babel，PostCSS，Less/Sass）轻易集成。</li>
 </ul>
 <figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">npm install hexo-cli -g<br>hexo init blog<br><span class="hljs-built_in">cd</span> blog<br>npm install<br>hexo server<br></code></pre></div></td></tr></table></figure>
-
 <p>环境准备：Node.js, git, npm, nvm(非必须)。</p>
 <p>操作文档参考：<a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/">文档</a></p>
 <p>官方收录主题：<a target="_blank" rel="noopener" href="https://hexo.io/themes/">主题</a></p>
 <p>本博客使用主题：<a target="_blank" rel="noopener" href="https://github.com/fluid-dev/hexo-theme-fluid">fluid</a></p>
 <p>一键部署：<a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/one-command-deployment">部署</a></p>
-<h3 id="Fluid-主题"><a href="#Fluid-主题" class="headerlink" title="Fluid 主题"></a>Fluid 主题</h3><p>官方手册：<a target="_blank" rel="noopener" href="https://hexo.fluid-dev.com/docs/">Hexo Fluid 用户手册</a></p>
-<h3 id="发布文章"><a href="#发布文章" class="headerlink" title="发布文章"></a>发布文章</h3><ol>
+<h3 id="fluid-主题">Fluid 主题</h3>
+<p>官方手册：<a target="_blank" rel="noopener" href="https://hexo.fluid-dev.com/docs/">Hexo Fluid 用户手册</a></p>
+<h3 id="发布文章">发布文章</h3>
+<ol type="1">
 <li><p>进入博客站点文件夹，使用<code>cmd</code>命令执行：</p>
 <figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">// hexo new [page] -p 文件保存路径 <span class="hljs-string">&quot;title&quot;</span><br>hexo new page --path Algorithm/Graph <span class="hljs-string">&quot;图论&quot;</span><br></code></pre></div></td></tr></table></figure></li>
-<li><p>在<code>站点目录\source\_posts</code>中生成的<code>xxx.md</code>文件里编辑文章内容。</p>
-</li>
-<li><p>[可选]执行下一步前，可先执行<code>hexo clean</code>，清空生成的文件夹<code>public</code></p>
-</li>
-<li><p>执行生成命令<code>hexo g</code>，将<code>*.md</code>转为静态文件<code>*.html</code>。</p>
-</li>
-<li><p>执行<code>hexo s</code>，启动本地服务，浏览器输入<code>localhost:4000</code>，查看生成效果。</p>
-</li>
-<li><p>执行部署命令<code>hexo d</code>，将新发布的文章部署到<code>github.io</code>上</p>
-</li>
+<li><p>在<code>站点目录\source\_posts</code>中生成的<code>xxx.md</code>文件里编辑文章内容。</p></li>
+<li><p>[可选]执行下一步前，可先执行<code>hexo clean</code>，清空生成的文件夹<code>public</code></p></li>
+<li><p>执行生成命令<code>hexo g</code>，将<code>*.md</code>转为静态文件<code>*.html</code>。</p></li>
+<li><p>执行<code>hexo s</code>，启动本地服务，浏览器输入<code>localhost:4000</code>，查看生成效果。</p></li>
+<li><p>执行部署命令<code>hexo d</code>，将新发布的文章部署到<code>github.io</code>上</p></li>
 </ol>
-<h3 id="Hexo-优化"><a href="#Hexo-优化" class="headerlink" title="Hexo 优化"></a>Hexo 优化</h3><h4 id="网站图片加速"><a href="#网站图片加速" class="headerlink" title="网站图片加速"></a>网站图片加速</h4><p>jsDelivr 加速 + Github图床 + PicGo上传</p>
+<h3 id="hexo-优化">Hexo 优化</h3>
+<h4 id="网站图片加速">网站图片加速</h4>
+<p>jsDelivr 加速 + Github图床 + PicGo上传</p>
 <p>可参考<a target="_blank" rel="noopener" href="https://www.erenship.com/posts/db37.html">Hexo 博客站点加速不完全指南</a></p>
-<h4 id="版权声明优化"><a href="#版权声明优化" class="headerlink" title="版权声明优化"></a>版权声明优化</h4><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_36852780/article/details/120943120">参考博客</a></p>
+<h4 id="版权声明优化">版权声明优化</h4>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_36852780/article/details/120943120">参考博客</a></p>
 <p>在<code>blog\node_modules\hexo-theme-fluid\layout</code>路径下找到<code>post.ejs</code>文件，打开后搜索<code>copyright</code>, 增加如下代码即可修改版权声明信息：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ejs">&lt;% if(theme.post.copyright.enable &amp;&amp; theme.post.copyright.content &amp;&amp; page.copyright !== false) &#123; %&gt;<br>    &lt;p class=&quot;note note-warning&quot;&gt;<br>         &lt;strong&gt;本文作者: &lt;/strong&gt;&lt;a href=&quot;&lt;%- url_for() %&gt;&quot;&gt;&lt;%- theme.about.name || config.author || config.title %&gt;&lt;/a&gt; &lt;br&gt;<br>         &lt;strong&gt;本文链接: &lt;/strong&gt;&lt;a href=&quot;&lt;%- full_url_for(page.path) %&gt;&quot;&gt;&lt;%- 		  full_url_for(page.path) %&gt;&lt;/a&gt; &lt;br&gt;<br>         &lt;strong&gt;版权声明: &lt;/strong&gt;&lt;%- theme.post.copyright.content %&gt;<br>    &lt;/p&gt;<br>&lt;% &#125; %&gt;<br></code></pre></div></td></tr></table></figure>
-
-<h4 id="文字复制时添加版权声明"><a href="#文字复制时添加版权声明" class="headerlink" title="文字复制时添加版权声明"></a>文字复制时添加版权声明</h4><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_33430083/article/details/105626840">参考文章：新手如何给Hexo博客在复制时添加版权声明</a></p>
-<h5 id="确认需要版权声明的位置"><a href="#确认需要版权声明的位置" class="headerlink" title="确认需要版权声明的位置"></a>确认需要版权声明的位置</h5><p>Fluid主题文章主体内容在<code>&lt;div class=&quot;container-fluid nopadding-x&quot;&gt;</code>标签中</p>
-<p><img src="https://cdn.jsdelivr.net/gh/Xylitol415/Hexo_Blog_Pictures/img/Hexo_1.png" srcset="/img/loading.gif" lazyload alt="找到Hexo文章主题内容所在标签class名称"></p>
-<h5 id="设置只有在非转载文章才会有添加版权声明"><a href="#设置只有在非转载文章才会有添加版权声明" class="headerlink" title="设置只有在非转载文章才会有添加版权声明"></a>设置只有在非转载文章才会有添加版权声明</h5><p>在需要复制时加版权声明的文章的<code>Front-matter </code>部分加上<code>copyable: true</code>即可</p>
-<p><img src="https://cdn.jsdelivr.net/gh/Xylitol415/Hexo_Blog_Pictures/img/Hexo_2.png" srcset="/img/loading.gif" lazyload alt="文章头部加上copyable属性"></p>
-<p>为了避免每次都加上<code>copyable</code>，可以设置新建文章时<code>Front-matter </code>的固定格式，带上<code>copyable: true</code>属性。</p>
-<h5 id="编写版权声明的js"><a href="#编写版权声明的js" class="headerlink" title="编写版权声明的js"></a>编写版权声明的js</h5><p>将监听博客详情页的复制事件的js代码放在<code>post.ejs</code>文件最后，可以通过设置<code>len</code>的大小度来改变粘贴板中字符的长度限制，复制超过len的大小文字内容时，就会在末尾追加上版权声明的信息，比如我这里设置<code>len</code>不超过<code>120</code>。</p>
+<h4 id="文字复制时添加版权声明">文字复制时添加版权声明</h4>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_33430083/article/details/105626840">参考文章：新手如何给Hexo博客在复制时添加版权声明</a></p>
+<h5 id="确认需要版权声明的位置">确认需要版权声明的位置</h5>
+<p>Fluid主题文章主体内容在<code>&lt;div class="container-fluid nopadding-x"&gt;</code>标签中</p>
+<figure>
+<img src="https://cdn.jsdelivr.net/gh/Xylitol415/Hexo_Blog_Pictures/img/Hexo_1.png" srcset="/img/loading.gif" lazyload alt="找到Hexo文章主题内容所在标签class名称" /><figcaption aria-hidden="true">找到Hexo文章主题内容所在标签class名称</figcaption>
+</figure>
+<h5 id="设置只有在非转载文章才会有添加版权声明">设置只有在非转载文章才会有添加版权声明</h5>
+<p>在需要复制时加版权声明的文章的<code>Front-matter</code>部分加上<code>copyable: true</code>即可</p>
+<figure>
+<img src="https://cdn.jsdelivr.net/gh/Xylitol415/Hexo_Blog_Pictures/img/Hexo_2.png" srcset="/img/loading.gif" lazyload alt="文章头部加上copyable属性" /><figcaption aria-hidden="true">文章头部加上copyable属性</figcaption>
+</figure>
+<p>为了避免每次都加上<code>copyable</code>，可以设置新建文章时<code>Front-matter</code>的固定格式，带上<code>copyable: true</code>属性。</p>
+<h5 id="编写版权声明的js">编写版权声明的js</h5>
+<p>将监听博客详情页的复制事件的js代码放在<code>post.ejs</code>文件最后，可以通过设置<code>len</code>的大小度来改变粘贴板中字符的长度限制，复制超过len的大小文字内容时，就会在末尾追加上版权声明的信息，比如我这里设置<code>len</code>不超过<code>120</code>。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ejs">&lt;% if (page.copyable) &#123; %&gt;<br>      &lt;script&gt;<br>          function setClipboardText(event)&#123;<br>              // clipboardData 对象是为通过编辑菜单、快捷菜单和快捷键执行的编辑操作所保留的，也就是你复制或者剪切内容<br>              let clipboardData = event.clipboardData || window.clipboardData;<br>              // 如果未复制或者未剪切，则return出去<br>              if (!clipboardData) &#123; return; &#125;<br>              event.preventDefault();<br>              // Selection 对象，表示用户选择的文本范围或光标的当前位置。<br>              //     声明一个变量接收 -- 用户输入的剪切或者复制的文本转化为字符串<br>              let text = window.getSelection().toString();<br>			  let len = text.length;<br>			  <br>			// 复制文字超过120个就加上版权信息<br>              if (len &gt;= 120) &#123;<br>                // 如果文本存在则先取消文本默认事件<br>                event.preventDefault();<br>                // 通过调用常clipboardData对象的 setData(format, data) 方法；来设置相关文本<br>                // format: 一个DOMString 表示要添加到 drag object的拖动数据的类型。<br>                // data: 一个 DOMString表示要添加到 drag object的数据。<br>                var copyright = &#x27;\n\n&#x27;<br>								+ &#x27;------------------------------------------------------&#x27;<br>                                + &#x27;\n著作权归作者所有。&#x27;<br>                                + &#x27;\n商业转载请联系作者获得授权，非商业转载请注明出处。&#x27;<br>                                + &#x27;\n作者: Seon Fang&#x27;<br>                                + &#x27;\n邮箱: fx940415@163.com&#x27;<br>                                + &#x27;\n原文地址: &lt;%= page.permalink %&gt;&#x27;<br>    <br>                clipboardData.setData(&#x27;text/plain&#x27;, text + copyright);<br>    <br>              &#125; else &#123;<br>				clipboardData.setData(&#x27;text/plain&#x27;, text);<br>			  &#125;<br>          &#125;;<br>          var contents = document.getElementsByClassName(&quot;container-fluid nopadding-x&quot;);<br>          // 监听文章内容的copy事件<br>          contents[0].addEventListener(&#x27;copy&#x27;,function(e)&#123;<br>              setClipboardText(e);<br>          &#125;);<br>      &lt;/script&gt;<br>&lt;% &#125; %&gt;<br></code></pre></div></td></tr></table></figure>
-
 <p>以上步骤完成后即可测试效果。</p>
-<h4 id="页脚增加网站运行时间"><a href="#页脚增加网站运行时间" class="headerlink" title="页脚增加网站运行时间"></a>页脚增加网站运行时间</h4><p>找到<code>blog\node_modules\hexo-theme-fluid\layout\_partial</code>中的<code>footer.ejs</code>文件，打开后在任意位置加上如下代码，即可看到效果，网站运行时间动态增加。</p>
+<h4 id="页脚增加网站运行时间">页脚增加网站运行时间</h4>
+<p>找到<code>blog\node_modules\hexo-theme-fluid\layout\_partial</code>中的<code>footer.ejs</code>文件，打开后在任意位置加上如下代码，即可看到效果，网站运行时间动态增加。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ejs"> &lt;!-- 添加网站运行时间 --&gt;<br>&lt;div class=&quot;footer-content&quot;&gt;<br>    &lt;span id=&quot;timeDate&quot;&gt;载入天数...&lt;/span&gt;<br>    &lt;span id=&quot;times&quot;&gt;载入时分秒...&lt;/span&gt;<br>    &lt;script&gt;<br>        var now = new Date();<br>        function createtime()&#123;<br>            var grt= new Date(&quot;04/05/2022 00:00:00&quot;);//此处修改你的建站时间或者网站上线时间<br>            now.setTime(now.getTime()+250);<br>            days = (now - grt ) / 1000 / 60 / 60 / 24;<br>            dnum = Math.floor(days);<br>            hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum);<br>            hnum = Math.floor(hours);<br>            if(String(hnum).length ==1 )&#123;<br>                hnum = &quot;0&quot; + hnum;<br>            &#125;<br>            minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);<br>            mnum = Math.floor(minutes);<br>            if(String(mnum).length ==1 )&#123;<br>                mnum = &quot;0&quot; + mnum;<br>            &#125;<br>            seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);<br>            snum = Math.round(seconds);<br>            if(String(snum).length ==1 )&#123;<br>                snum = &quot;0&quot; + snum;<br>            &#125;<br>            document.getElementById(&quot;timeDate&quot;).innerHTML = &quot;🚀 for&amp;nbsp&quot;+dnum+&quot;&amp;nbspdays&quot;;  //此次自定义显示内容<br>            document.getElementById(&quot;times&quot;).innerHTML = hnum + &quot;&amp;nbsphr&amp;nbsp&quot; + mnum + &quot;&amp;nbspmin&amp;nbsp&quot; + snum + &quot;&amp;nbspsec&quot;;<br>        &#125;  //此次自定义显示内容<br>        setInterval(&quot;createtime()&quot;,250);<br>    &lt;/script&gt;<br>&lt;/div&gt;<br></code></pre></div></td></tr></table></figure>
-
-<h4 id="设置网站全局字体为宋体"><a href="#设置网站全局字体为宋体" class="headerlink" title="设置网站全局字体为宋体"></a>设置网站全局字体为宋体</h4><p>在<code>_config.fluid.yml</code>文件中<code>#主题字体配置处</code>做如下修改：</p>
+<h4 id="设置网站全局字体为宋体">设置网站全局字体为宋体</h4>
+<p>在<code>_config.fluid.yml</code>文件中<code>#主题字体配置处</code>做如下修改：</p>
 <figure class="highlight yml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs yml"><span class="hljs-comment"># 主题字体配置</span><br><span class="hljs-attr">font:</span><br>	<span class="hljs-attr">font_family:</span> <span class="hljs-string">Noto</span> <span class="hljs-string">Serif</span> <span class="hljs-string">SC</span><br><span class="hljs-attr">custom_css:</span> <span class="hljs-string">https://fonts.googleapis.com/css2?family=Noto+Serif+SC&amp;display=swap</span><br></code></pre></div></td></tr></table></figure>
-
-
-
-
-
-<h3 id="常见错误"><a href="#常见错误" class="headerlink" title="常见错误"></a>常见错误</h3><h4 id="格式错误"><a href="#格式错误" class="headerlink" title="格式错误"></a>格式错误</h4><p>1.在使用<code>$</code>符号时，一定要用反引号括起来，不然<code>$</code>被解析成HTML文件时格式会出错。</p>
-<p>比如”$1”应写成<code>$1</code></p>
+<h3 id="常见错误">常见错误</h3>
+<h4 id="格式错误">格式错误</h4>
+<p>1.在使用<code>$</code>符号时，一定要用反引号括起来，不然<code>$</code>被解析成HTML文件时格式会出错。</p>
+<p>比如"$1"应写成<code>$1</code></p>
 <p>2.对命令选项加粗时，要在<code>-</code>字符前面加上转义<code>\</code>，不然解析HTML格式异常。</p>
-<p>比如:<code>**-p选项**</code>应写成``**-p选项`</p>
+<p>比如:<code>**-p选项**</code>应写成`<code>**\-p选项</code></p>
 <p>类似的还有<code>**&gt;&gt;符号**</code>这中<code>**</code>与<code>&gt;</code>连在一起时，中间也要加上转义：<code>**\&gt;&gt;符号**</code>。</p>
 <p>3.<code>$</code>想要加粗显示，可以用如下方式，注意后面两个加粗符号<code>**</code>要与之后的汉字或字母间隔一个空格位置：</p>
 <p><code>**$\*** 和**\$@**变量可以用来轻松访问所有的参数</code></p>
@@ -568,48 +572,6 @@
 
 
 
-
-  
-
-  
-    <!-- MathJax -->
-    <script>
-      MathJax = {
-        tex: {
-          inlineMath: [['$', '$'], ['\\(', '\\)']]
-        },
-        loader: {
-          load: ['ui/lazy']
-        },
-        options: {
-          renderActions: {
-            findScript: [10, doc => {
-              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
-                const display = !!node.type.match(/; *mode=display/);
-                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
-                const text = document.createTextNode('');
-                node.parentNode.replaceChild(text, node);
-                math.start = { node: text, delim: '', n: 0 };
-                math.end = { node: text, delim: '', n: 0 };
-                doc.math.push(math);
-              });
-            }, '', false],
-            insertedScript: [200, () => {
-              document.querySelectorAll('mjx-container').forEach(node => {
-                let target = node.parentNode;
-                if (target.nodeName.toLowerCase() === 'li') {
-                  target.parentNode.classList.add('has-jax');
-                }
-              });
-            }, '', false]
-          }
-        }
-      };
-    </script>
-
-    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
-
-  
 
 
 
