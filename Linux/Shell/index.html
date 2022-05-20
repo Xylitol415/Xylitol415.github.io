@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/img/Linux/Base/linux_logo.webp">
 <meta property="article:published_time" content="2022-04-21T09:39:12.000Z">
-<meta property="article:modified_time" content="2022-05-12T12:05:15.544Z">
+<meta property="article:modified_time" content="2022-05-20T04:49:45.935Z">
 <meta property="article:author" content="Seon Fang">
 <meta property="article:tag" content="Shell">
 <meta name="twitter:card" content="summary_large_image">
@@ -212,7 +212,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      357 分钟
+      356 分钟
     </span>
   
 
@@ -245,7 +245,7 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：2022年5月12日 晚上
+                  本文最后更新于：2022年5月20日 下午
                 
               </p>
             
@@ -526,7 +526,7 @@
 <h4 id="退出脚本">退出脚本</h4>
 <p>shell中运行的每个命令都使用<strong>退出状态码</strong>（exit status）告诉shell它已经运行完毕。退出状态码是一个<strong>0～255</strong>的整数值，在命令结束运行时由命令传给shell。可以捕获这个值并在脚本中使用。</p>
 <h5 id="查看退出状态码">查看退出状态码</h5>
-<p>Linux提供了一个专门的**变量<span class="math inline">\(?** 来保存上个已执行命令的退出状态码。对于需要进行检查的命令，必须在其运行完毕后立刻查看或使用`\)</span>?`变量。它的值会变成由shell所执行的最后一条命令的退出状态码。</p>
+<p>Linux提供了一个专门的<strong>变量$?</strong> 来保存上个已执行命令的退出状态码。对于需要进行检查的命令，必须在其运行完毕后立刻查看或使用<code>\$?</code>变量。它的值会变成由shell所执行的最后一条命令的退出状态码。</p>
 <figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">$ <span class="hljs-built_in">date</span><br>Sat Jan 15 10:01:30 EDT 2014<br>$ <span class="hljs-built_in">echo</span> $?<br>0<br>$ asdfg<br>-bash: asdfg: <span class="hljs-built_in">command</span> not found<br>$ <span class="hljs-built_in">echo</span> $?<br>127<br>$<br>$ ./myprog.c<br>-bash: ./myprog.c: Permission denied<br>$ <span class="hljs-built_in">echo</span> $?<br>126<br>$ <span class="hljs-built_in">date</span> %t<br><span class="hljs-built_in">date</span>: invalid <span class="hljs-built_in">date</span> <span class="hljs-string">&#x27;%t&#x27;</span><br>$ <span class="hljs-built_in">echo</span> $?<br>1<br></code></pre></div></td></tr></table></figure>
 <p>按照惯例，一个成功结束的命令的退出状态码是0。如果一个命令结束时有错误，退出状态。无效命令会返回一个退出状态码127。Linux错误退出状态码没有什么标准可循，但有一些可用的参考，如下表所示。</p>
 <table>
